@@ -20,11 +20,12 @@ export function PillBadge({
       "bg-gradient-to-tr from-zinc-300/20 via-gray-400/20 to-transparent",
       "dark:from-zinc-300/5 dark:via-gray-400/5",
       "border-[2px] border-black/5 dark:border-white/5 rounded-3xl w-fit",
+      "flex items-center gap-1 whitespace-nowrap",
       className
     )}>
-      {children}
+      <span>{children}</span>
       {showArrow && (
-        <ChevronRight className="inline w-4 h-4 ml-2 group-hover:translate-x-1 duration-300" />
+        <ChevronRight className="w-4 h-4 shrink-0 group-hover:translate-x-1 duration-300" />
       )}
     </div>
   );
