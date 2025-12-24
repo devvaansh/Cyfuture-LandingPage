@@ -99,9 +99,8 @@ export default function Features() {
                   </h3>
                   <div className="text-md text-muted-foreground flex flex-col gap-2 text-sm">
                     <p className="max-w-[460px]">
-                      We secure invoice hash on blockchain, ensuring
-                      tamper-proof records and preventing ITC fraud, enabling
-                      transparent and trustworthy GST compliance.
+                      We secure invoice hashes on the blockchain to prevent
+                      tampering and ITC fraud, ensuring transparent and reliable GST compliance.
                     </p>
                   </div>
                 </div>
