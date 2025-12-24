@@ -29,6 +29,7 @@ interface ConfigStatus {
 export default function ConfigurationValidator() {
   const [configStatus, setConfigStatus] = useState<ConfigStatus | null>(null);
   const [showDetails, setShowDetails] = useState(false);
+  const [isDismissed, setIsDismissed] = useState(false);
 
   useEffect(() => {
     checkConfiguration();
@@ -112,23 +113,30 @@ NEXT_PUBLIC_PINATA_JWT=your_pinata_jwt_here
   const hasIssues =
     !configStatus.geminiApiKey.valid || !configStatus.ipfsConfig.valid;
 
-  if (!hasIssues && !showDetails) {
+  // Show a small button when dismissed or when no issues and not showing details
+  if (isDismissed || (!hasIssues && !showDetails)) {
     return (
       <Button
         variant="ghost"
         size="sm"
-        onClick={() => setShowDetails(true)}
-        className="fixed bottom-4 right-4 bg-green-600/20 text-green-400 hover:bg-green-600/30"
+        onClick={() => {
+          setShowDetails(true);
+          setIsDismissed(false);
+        }}
+        className={`fixed bottom-4 right-4 z-50 ${hasIssues ? 'bg-amber-600/20 text-amber-400 hover:bg-amber-600/30' : 'bg-green-600/20 text-green-400 hover:bg-green-600/30'}`}
       >
-        <CheckCircle className="w-4 h-4 mr-2" />
-        Config OK
+        {hasIssues ? (
+          <><AlertCircle className="w-4 h-4 mr-2" />Config Issues</>
+        ) : (
+          <><CheckCircle className="w-4 h-4 mr-2" />Config OK</>
+        )}
       </Button>
     );
   }
 
   return (
     <AnimatePresence>
-      {(hasIssues || showDetails) && (
+      {showDetails && (
         <motion.div
           initial={{ opacity: 0, y: 50 }}
           animate={{ opacity: 1, y: 0 }}
@@ -145,8 +153,11 @@ NEXT_PUBLIC_PINATA_JWT=your_pinata_jwt_here
                 <Button
                   variant="ghost"
                   size="sm"
-                  onClick={() => setShowDetails(false)}
-                  className="text-slate-400 hover:text-white"
+                  onClick={() => {
+                    setShowDetails(false);
+                    setIsDismissed(true);
+                  }}
+                  className="text-slate-400 hover:text-white h-6 w-6 p-0 text-lg"
                 >
                   ×
                 </Button>
