@@ -4,8 +4,7 @@ import React, { useState, useMemo, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import { Button } from "./ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
-import { Bot, User, X, TrendingUp, ArrowDown, ArrowUp } from "lucide-react";
+import { Bot, User, X, TrendingUp, ArrowDown, ArrowUp, Sparkles, Send, Mic, Globe, MessageSquare, Zap } from "lucide-react";
 import { useSpeechRecognition } from "@/hooks/useSpeechRecognition";
 import ListeningIndicator from "@/components/ai/ListeningIndicator";
 import GeminiShimmerEffect from "@/components/ai/GeminiShimmerEffect";
@@ -21,6 +20,81 @@ type ChatMessage = {
   text?: string;
   component?: React.ReactNode;
 };
+
+// Premium Stat Card Component
+const PremiumStatCard = ({ stat, delay = 0 }: { stat: any; delay?: number }) => {
+  const Icon = stat.icon;
+  const isPositive = stat.change.startsWith('+');
+  
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 20, scale: 0.95 }}
+      animate={{ opacity: 1, y: 0, scale: 1 }}
+      transition={{ delay, duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+      className="group relative"
+    >
+      {/* Glow Effect */}
+      <div className={`absolute -inset-0.5 rounded-2xl blur-xl opacity-0 group-hover:opacity-40 transition-opacity duration-500 ${
+        isPositive ? 'bg-green-500/30' : 'bg-red-500/30'
+      }`} />
+      
+      {/* Card */}
+      <div className="relative bg-gradient-to-br from-white/[0.08] to-white/[0.02] backdrop-blur-xl border border-white/[0.08] rounded-2xl p-6 transition-all duration-500 group-hover:border-white/[0.15] group-hover:bg-white/[0.06]">
+        <div className="flex items-start justify-between">
+          <div className="space-y-1">
+            <p className="text-zinc-400 text-sm font-medium">{stat.title}</p>
+            <h3 className="text-2xl font-bold text-white tracking-tight">
+              {stat.title.includes('Customer') ? stat.value.toLocaleString() : `₹${stat.value.toLocaleString()}`}
+            </h3>
+          </div>
+          <div className={`p-3 rounded-xl ${
+            isPositive ? 'bg-green-500/10' : 'bg-red-500/10'
+          }`}>
+            <Icon className={`w-5 h-5 ${stat.iconColor}`} />
+          </div>
+        </div>
+        <div className={`mt-4 inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-semibold ${
+          isPositive 
+            ? 'bg-green-500/10 text-green-400 border border-green-500/20' 
+            : 'bg-red-500/10 text-red-400 border border-red-500/20'
+        }`}>
+          {isPositive ? <ArrowUp className="w-3 h-3" /> : <ArrowDown className="w-3 h-3" />}
+          {stat.change} vs last period
+        </div>
+      </div>
+    </motion.div>
+  );
+};
+
+// Quick Action Button Component
+const QuickActionButton = ({ title, description, icon: Icon, onClick, delay = 0 }: any) => (
+  <motion.button
+    initial={{ opacity: 0, y: 20 }}
+    animate={{ opacity: 1, y: 0 }}
+    transition={{ delay, duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+    whileHover={{ scale: 1.02, y: -2 }}
+    whileTap={{ scale: 0.98 }}
+    onClick={onClick}
+    className="group relative text-left w-full"
+  >
+    {/* Glow */}
+    <div className="absolute -inset-0.5 bg-gradient-to-r from-blue-500/20 to-cyan-500/20 rounded-2xl blur opacity-0 group-hover:opacity-50 transition-opacity duration-300" />
+    
+    {/* Card */}
+    <div className="relative flex items-center gap-4 p-4 bg-gradient-to-br from-white/[0.05] to-white/[0.02] backdrop-blur-xl border border-white/[0.06] rounded-2xl transition-all duration-300 group-hover:border-blue-500/30 group-hover:bg-white/[0.06]">
+      <div className="flex-shrink-0 p-3 rounded-xl bg-gradient-to-br from-blue-500/20 to-cyan-500/10 border border-blue-500/20">
+        <Icon className="w-5 h-5 text-blue-400" />
+      </div>
+      <div className="flex-1 min-w-0">
+        <h4 className="text-white font-semibold text-sm group-hover:text-blue-300 transition-colors">{title}</h4>
+        <p className="text-zinc-500 text-xs truncate">{description}</p>
+      </div>
+      <div className="text-zinc-600 group-hover:text-blue-400 transition-colors">
+        <Send className="w-4 h-4 rotate-45" />
+      </div>
+    </div>
+  </motion.button>
+);
 
 // --- Main INGRES Assistant Component ---
 const AIAccountant = ({ embedded = false }: { embedded?: boolean }) => {
@@ -425,28 +499,28 @@ User's question: "${text}"`;
         title: "Total Revenue",
         value: 660000,
         icon: iconMap["TrendingUp"],
-        iconColor: "text-green-500",
+        iconColor: "text-green-400",
         change: "+5.2%",
       },
       {
         title: "Total Expenses",
         value: 150000,
         icon: iconMap["ArrowDown"],
-        iconColor: "text-red-500",
+        iconColor: "text-red-400",
         change: "+2.1%",
       },
       {
         title: "Net Profit",
         value: 510000,
         icon: iconMap["ArrowUp"],
-        iconColor: "text-green-500",
+        iconColor: "text-emerald-400",
         change: "+6.8%",
       },
       {
         title: "New Customers",
         value: 3461,
         icon: iconMap["User"],
-        iconColor: "text-sky-500",
+        iconColor: "text-blue-400",
         change: "+0.5%",
       },
     ],
@@ -473,248 +547,363 @@ User's question: "${text}"`;
 
   const suggestedPrompts = [
     {
-      title: "Get Revenue Details",
+      title: "Revenue Analysis",
       text: "Show the revenue for the last quarter",
-      description: "Fetch a detailed visual report for revenue.",
+      description: "Get detailed revenue breakdown",
+      icon: TrendingUp,
     },
     {
-      title: "List Top Expenses",
+      title: "Expense Report",
       text: "List all top expenses in the last month",
-      description: "Filter and view expenses by category and state.",
+      description: "Track spending patterns",
+      icon: ArrowDown,
     },
     {
-      title: "Compare Two Quarters",
+      title: "Quarter Comparison",
       text: "Compare revenue in Q1 and Q2 over the last 5 years.",
-      description: "Analyze historical trends between two quarters.",
+      description: "Historical trend analysis",
+      icon: Zap,
     },
     {
-      title: "Predict Future Trends",
-      text: "Forecast the revenue for the next 6 months",
-      description: "Use predictive analytics to see future possibilities.",
-    },
-    {
-      title: "Get AI Recommendations",
+      title: "AI Recommendations",
       text: "What can we do to reduce expenses in marketing?",
-      description: "Receive actionable advice based on current data.",
+      description: "Get actionable insights",
+      icon: Sparkles,
     },
   ];
 
   const renderDashboard = () => (
-    <div
-      className={`container mx-auto px-4 pt-8 pb-24 ${
-        embedded ? "mt-0" : "mt-10"
-      }`}
-    >
-      <div className="relative text-center max-w-4xl mx-auto">
-        {!embedded && (
-          <div className="absolute top-0 right-0 -mr-8 mt-4 w-32 h-32 bg-sky-400/30 rounded-full blur-3xl animate-pulse"></div>
-        )}
-        <h1
-          className={`font-bold text-slate-800 ${
-            embedded ? "text-3xl" : "text-5xl md:text-7xl"
-          }`}
-        ></h1>
-        <p className="text-xl text-slate-600 max-w-2xl mt-4 mx-auto">
-          Your intelligent command center for your financial data.
-        </p>
-      </div>
-      <div className="mt-12">
-        <INGRESCommandBar
-          {...commonCommandBarProps}
-          onFileSelect={handleFakeMapAnalysis}
+    <div className="min-h-screen bg-[#0a0b0e] relative overflow-hidden">
+      {/* Animated Background */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <motion.div
+          className="absolute top-0 left-1/4 w-[600px] h-[600px] rounded-full bg-gradient-to-br from-blue-600/20 via-blue-500/10 to-transparent blur-3xl"
+          animate={{
+            x: [0, 50, 0],
+            y: [0, 30, 0],
+            scale: [1, 1.1, 1],
+          }}
+          transition={{
+            duration: 20,
+            repeat: Infinity,
+            ease: "easeInOut",
+          }}
+        />
+        <motion.div
+          className="absolute bottom-0 right-1/4 w-[500px] h-[500px] rounded-full bg-gradient-to-tl from-cyan-500/15 via-blue-400/10 to-transparent blur-3xl"
+          animate={{
+            x: [0, -40, 0],
+            y: [0, -50, 0],
+            scale: [1, 1.15, 1],
+          }}
+          transition={{
+            duration: 18,
+            repeat: Infinity,
+            ease: "easeInOut",
+          }}
         />
       </div>
 
-      {/* Quick Start Chat Button */}
-      <div className="mt-8 text-center">
-        <Button
-          onClick={() => setView("chat")}
-          className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 rounded-lg text-lg font-medium"
-        >
-          Start Chat Session
-        </Button>
-      </div>
+      {/* Grid Pattern */}
+      <div 
+        className="absolute inset-0 opacity-[0.02]"
+        style={{
+          backgroundImage: `
+            linear-gradient(rgba(59, 130, 246, 0.5) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(59, 130, 246, 0.5) 1px, transparent 1px)
+          `,
+          backgroundSize: '60px 60px',
+        }}
+      />
 
-      <motion.div
-        initial="hidden"
-        animate="visible"
-        variants={{ visible: { transition: { staggerChildren: 0.1 } } }}
-        className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mt-12 max-w-6xl mx-auto"
-      >
-        {stats.map((stat) => (
+      <div className={`relative container mx-auto px-4 py-8 ${embedded ? "" : "pt-16"}`}>
+        {/* Header */}
+        <motion.div 
+          className="text-center max-w-3xl mx-auto mb-12"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6 }}
+        >
           <motion.div
-            key={stat.title}
-            variants={{
-              hidden: { opacity: 0, y: 20 },
-              visible: { opacity: 1, y: 0 },
-            }}
+            className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-gradient-to-r from-blue-500/10 to-cyan-500/10 border border-blue-500/20 mb-6"
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ delay: 0.2 }}
           >
-            <MemoizedStatCard stat={stat} />
+            <Sparkles className="w-4 h-4 text-blue-400" />
+            <span className="text-sm font-medium text-blue-300">Powered by AI</span>
           </motion.div>
-        ))}
-      </motion.div>
+          
+          <h1 className="text-4xl md:text-5xl font-bold text-white tracking-tight mb-4">
+            Your Intelligent{" "}
+            <span className="bg-gradient-to-r from-blue-400 via-cyan-400 to-blue-500 text-transparent bg-clip-text">
+              Command Center
+            </span>
+          </h1>
+          <p className="text-lg text-zinc-400 max-w-xl mx-auto">
+            Transform your financial data into actionable insights with AI-powered analytics
+          </p>
+        </motion.div>
+
+        {/* Premium Command Bar */}
+        <motion.div
+          className="max-w-3xl mx-auto mb-12"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.3 }}
+        >
+          <div className="relative group">
+            {/* Glow Effect */}
+            <div className="absolute -inset-1 bg-gradient-to-r from-blue-500/30 via-cyan-500/20 to-blue-500/30 rounded-2xl blur-xl opacity-50 group-hover:opacity-70 transition-opacity duration-500" />
+            
+            {/* Command Bar Container */}
+            <div className="relative bg-gradient-to-br from-white/[0.08] to-white/[0.02] backdrop-blur-2xl border border-white/[0.08] rounded-2xl p-4 transition-all duration-300 group-hover:border-white/[0.12]">
+              <INGRESCommandBar
+                {...commonCommandBarProps}
+                onFileSelect={handleFakeMapAnalysis}
+              />
+            </div>
+          </div>
+        </motion.div>
+
+        {/* Quick Start Button */}
+        <motion.div 
+          className="text-center mb-16"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.4 }}
+        >
+          <motion.button
+            onClick={() => setView("chat")}
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
+            className="relative inline-flex items-center gap-3 px-8 py-4 rounded-xl font-semibold text-white overflow-hidden group"
+          >
+            {/* Button Glow */}
+            <div className="absolute -inset-1 bg-gradient-to-r from-blue-600 via-cyan-500 to-blue-600 rounded-xl blur opacity-60 group-hover:opacity-80 transition-opacity" />
+            
+            {/* Button Background */}
+            <div className="absolute inset-0 bg-gradient-to-r from-blue-600 via-blue-500 to-cyan-500 rounded-xl" />
+            
+            {/* Shine Effect */}
+            <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500">
+              <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/25 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700" />
+            </div>
+            
+            <MessageSquare className="relative w-5 h-5" />
+            <span className="relative">Start Chat Session</span>
+          </motion.button>
+        </motion.div>
+
+        {/* Stats Grid */}
+        <div className="max-w-5xl mx-auto mb-16">
+          <motion.h2 
+            className="text-sm font-medium text-zinc-500 uppercase tracking-wider mb-6 text-center"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.5 }}
+          >
+            Financial Overview
+          </motion.h2>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            {stats.map((stat, index) => (
+              <PremiumStatCard key={stat.title} stat={stat} delay={0.5 + index * 0.1} />
+            ))}
+          </div>
+        </div>
+
+        {/* Quick Actions */}
+        <div className="max-w-3xl mx-auto">
+          <motion.h2 
+            className="text-sm font-medium text-zinc-500 uppercase tracking-wider mb-6 text-center"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.7 }}
+          >
+            Quick Actions
+          </motion.h2>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            {suggestedPrompts.map((prompt, index) => (
+              <QuickActionButton
+                key={prompt.title}
+                title={prompt.title}
+                description={prompt.description}
+                icon={prompt.icon}
+                onClick={() => handleChatSubmit(prompt.text)}
+                delay={0.8 + index * 0.1}
+              />
+            ))}
+          </div>
+        </div>
+      </div>
     </div>
   );
 
   const renderChatView = () => (
-    <div
-      className={`flex items-center justify-center min-h-screen p-4 ${
-        embedded ? "p-2" : "md:p-6"
-      }`}
-    >
-      <Card
-        className={`w-full flex flex-col shadow-2xl rounded-2xl ${
-          embedded
-            ? "h-full max-w-none bg-slate-800/90 border-slate-700"
-            : "max-w-5xl h-[calc(100vh-1rem)] bg-white/60 backdrop-blur-xl border-white/30"
-        }`}
-      >
-        <CardHeader
-          className={`flex flex-row items-center justify-between ${
-            embedded
-              ? "border-slate-700 bg-slate-800/50"
-              : "border-slate-200/80"
-          }`}
+    <div className="min-h-screen bg-[#0a0b0e] relative overflow-hidden">
+      {/* Background Effects */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute top-0 left-1/4 w-[500px] h-[500px] rounded-full bg-gradient-to-br from-blue-600/15 to-transparent blur-3xl" />
+        <div className="absolute bottom-0 right-1/4 w-[400px] h-[400px] rounded-full bg-gradient-to-tl from-cyan-500/10 to-transparent blur-3xl" />
+      </div>
+
+      <div className="relative h-screen flex flex-col max-w-4xl mx-auto p-4">
+        {/* Header */}
+        <motion.div
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="flex items-center justify-between py-4 border-b border-white/[0.06]"
         >
           <div className="flex items-center gap-3">
-            <Bot className="h-6 w-6 text-blue-600" />
-            <CardTitle className="text-xl">AI Data Analyst</CardTitle>
+            <div className="relative">
+              <div className="absolute -inset-1 bg-gradient-to-r from-blue-500 to-cyan-500 rounded-xl blur opacity-50" />
+              <div className="relative p-2.5 rounded-xl bg-gradient-to-br from-blue-500 to-cyan-500">
+                <Bot className="w-5 h-5 text-white" />
+              </div>
+            </div>
+            <div>
+              <h1 className="text-lg font-semibold text-white">AI Data Analyst</h1>
+              <p className="text-xs text-zinc-500">Powered by Gemini</p>
+            </div>
           </div>
-          <div className="flex items-center gap-2">
-            <Button
-              variant="ghost"
-              onClick={() => {
-                setView("dashboard");
-                setChatHistory([]);
-              }}
-            >
-              <X className="h-4 w-4 mr-2" /> End Chat
-            </Button>
-          </div>
-        </CardHeader>
+          <motion.button
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            onClick={() => {
+              setView("dashboard");
+              setChatHistory([]);
+            }}
+            className="flex items-center gap-2 px-4 py-2 rounded-xl bg-white/[0.05] border border-white/[0.08] text-zinc-400 hover:text-white hover:bg-white/[0.08] transition-all"
+          >
+            <X className="w-4 h-4" />
+            <span className="text-sm font-medium">End Chat</span>
+          </motion.button>
+        </motion.div>
 
-        <CardContent
+        {/* Chat Messages */}
+        <div
           ref={chatContainerRef}
-          className={`flex-grow overflow-y-auto min-h-0 space-y-6 ${
-            embedded ? "p-3" : "p-6"
-          }`}
+          className="flex-1 overflow-y-auto py-6 space-y-6 scrollbar-thin scrollbar-thumb-white/10"
         >
           {chatHistory.length === 0 && (
             <motion.div
-              variants={{ visible: { transition: { staggerChildren: 0.1 } } }}
-              initial="hidden"
-              animate="visible"
-              className="pt-4 pb-8 text-center"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="text-center py-12"
             >
-              <motion.h3
-                variants={{
-                  hidden: { opacity: 0, y: 20 },
-                  visible: { opacity: 1, y: 0 },
-                }}
-                className="text-lg font-semibold text-slate-700 mb-4"
-              >
-                Try one of these sample queries...
-              </motion.h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                {suggestedPrompts.map((prompt, i) => (
+              <div className="inline-flex p-4 rounded-2xl bg-gradient-to-br from-blue-500/10 to-cyan-500/5 border border-blue-500/20 mb-6">
+                <Sparkles className="w-8 h-8 text-blue-400" />
+              </div>
+              <h3 className="text-xl font-semibold text-white mb-2">How can I help you today?</h3>
+              <p className="text-zinc-500 mb-8">Ask me anything about your financial data</p>
+              
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 max-w-xl mx-auto">
+                {suggestedPrompts.slice(0, 4).map((prompt, index) => (
                   <motion.button
-                    key={i}
-                    variants={{
-                      hidden: { opacity: 0, y: 20 },
-                      visible: { opacity: 1, y: 0 },
-                    }}
+                    key={prompt.title}
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.1 + index * 0.1 }}
                     onClick={() => handleChatSubmit(prompt.text)}
-                    className={`p-4 rounded-lg text-left text-sm font-medium border shadow-sm hover:shadow-md ${
-                      embedded
-                        ? "bg-slate-700/50 text-slate-200 border-slate-600 hover:bg-slate-600/50"
-                        : "bg-white/60 text-slate-800 hover:bg-slate-100/80"
-                    }`}
+                    className="p-4 rounded-xl bg-white/[0.03] border border-white/[0.06] text-left hover:bg-white/[0.06] hover:border-white/[0.1] transition-all group"
                   >
-                    <p className="font-semibold">{prompt.title}</p>
+                    <div className="flex items-center gap-3 mb-2">
+                      <prompt.icon className="w-4 h-4 text-blue-400" />
+                      <span className="text-sm font-medium text-white">{prompt.title}</span>
+                    </div>
+                    <p className="text-xs text-zinc-500">{prompt.description}</p>
                   </motion.button>
                 ))}
               </div>
             </motion.div>
           )}
+
           <AnimatePresence>
             {chatHistory.map((msg) => {
+              const isUser = msg.type === "user";
               const isGraphMessage = !!msg.component;
 
               return (
                 <motion.div
                   key={msg.id}
-                  layout
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
-                  className={`flex items-start gap-4 ${
-                    msg.type === "user" ? "ml-auto justify-end" : "mr-auto"
-                  } w-full`}
+                  className={`flex gap-4 ${isUser ? "flex-row-reverse" : ""}`}
                 >
-                  {msg.type !== "user" && (
-                    <div className="flex-shrink-0 w-8 h-8 rounded-full bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center">
-                      <Bot className="w-5 h-5 text-white" />
+                  {/* Avatar */}
+                  <div className={`flex-shrink-0 ${isUser ? "order-1" : ""}`}>
+                    <div className={`w-9 h-9 rounded-xl flex items-center justify-center ${
+                      isUser 
+                        ? "bg-gradient-to-br from-zinc-600 to-zinc-700" 
+                        : "bg-gradient-to-br from-blue-500 to-cyan-500"
+                    }`}>
+                      {isUser ? (
+                        <User className="w-4 h-4 text-white" />
+                      ) : (
+                        <Bot className="w-4 h-4 text-white" />
+                      )}
                     </div>
-                  )}
+                  </div>
 
-                  <div className={isGraphMessage ? "w-full" : "max-w-2xl"}>
-                    {msg.type === "user" ? (
-                      <div className="bg-blue-500 text-white p-3 rounded-2xl rounded-br-lg shadow-sm">
-                        <p className="text-base">{msg.text}</p>
+                  {/* Message */}
+                  <div className={`max-w-2xl ${isGraphMessage ? "w-full" : ""}`}>
+                    {isUser ? (
+                      <div className="px-4 py-3 rounded-2xl rounded-tr-md bg-gradient-to-r from-blue-600 to-blue-500 text-white shadow-lg shadow-blue-500/20">
+                        <p className="text-sm">{msg.text}</p>
                       </div>
                     ) : msg.component ? (
-                      msg.component
+                      <div className="rounded-2xl overflow-hidden border border-white/[0.08]">
+                        {msg.component}
+                      </div>
                     ) : (
-                      <div
-                        className={`p-4 rounded-2xl rounded-bl-lg border shadow-sm ${
-                          embedded
-                            ? "bg-slate-700/50 text-slate-200 border-slate-600"
-                            : "bg-white text-slate-800"
-                        }`}
-                      >
+                      <div className="px-4 py-3 rounded-2xl rounded-tl-md bg-white/[0.05] border border-white/[0.08] backdrop-blur-lg text-zinc-100 prose prose-invert prose-sm max-w-none prose-headings:text-white prose-p:text-zinc-200 prose-strong:text-white prose-code:text-blue-300 prose-code:bg-white/10 prose-code:px-1.5 prose-code:py-0.5 prose-code:rounded prose-pre:bg-white/5 prose-ul:text-zinc-200 prose-ol:text-zinc-200 prose-li:text-zinc-200">
                         <AnimatedMarkdownMessage text={msg.text || ""} />
                       </div>
                     )}
                   </div>
-
-                  {msg.type === "user" && (
-                    <div className="flex-shrink-0 w-8 h-8 rounded-full bg-slate-200 flex items-center justify-center">
-                      <User className="w-5 h-5 text-slate-600" />
-                    </div>
-                  )}
                 </motion.div>
               );
             })}
-            {isThinking && <GeminiShimmerEffect />}
+
+            {isThinking && (
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                className="flex gap-4"
+              >
+                <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-blue-500 to-cyan-500 flex items-center justify-center">
+                  <Bot className="w-4 h-4 text-white" />
+                </div>
+                <div className="px-4 py-3 rounded-2xl rounded-tl-md bg-white/[0.05] border border-white/[0.08]">
+                  <GeminiShimmerEffect />
+                </div>
+              </motion.div>
+            )}
           </AnimatePresence>
-        </CardContent>
-        <CardContent
-          className={`${
-            embedded
-              ? "border-slate-700 bg-slate-800/50"
-              : "border-slate-200/80"
-          } pt-4`}
+        </div>
+
+        {/* Input Area */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="py-4 border-t border-white/[0.06]"
         >
-          <INGRESCommandBar
-            {...commonCommandBarProps}
-            onFileSelect={handleFakeMapAnalysis}
-          />
-        </CardContent>
-      </Card>
+          <div className="relative group">
+            <div className="absolute -inset-0.5 bg-gradient-to-r from-blue-500/20 to-cyan-500/20 rounded-2xl blur opacity-50 group-focus-within:opacity-70 transition-opacity" />
+            <div className="relative bg-white/[0.05] border border-white/[0.08] rounded-2xl transition-all group-focus-within:border-blue-500/30">
+              <INGRESCommandBar
+                {...commonCommandBarProps}
+                onFileSelect={handleFakeMapAnalysis}
+              />
+            </div>
+          </div>
+        </motion.div>
+      </div>
     </div>
   );
 
   return (
-    <div
-      className={`min-h-screen text-slate-900 font-sans isolate ${
-        embedded ? "bg-white" : "bg-gradient-to-br from-slate-50 to-white"
-      }`}
-    >
-      {!embedded && (
-        <div className="absolute inset-0 -z-10 h-full w-full overflow-hidden">
-          <div className="absolute -top-1/4 left-0 h-[800px] w-[800px] bg-blue-100/40 rounded-full blur-3xl filter animate-blob"></div>
-          <div className="absolute -top-1/3 right-0 h-[800px] w-[800px] bg-sky-100/40 rounded-full filter animate-blob animation-delay-2000"></div>
-        </div>
-      )}
+    <div className="relative">
       <AnimatePresence>
         {toast.visible && (
           <Toast
