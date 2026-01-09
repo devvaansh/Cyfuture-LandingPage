@@ -80,9 +80,12 @@ interface ExtractedInvoiceData {
 Add to your `.env` file:
 
 ```
-NEXT_PUBLIC_GEMINI_API_KEY=your_gemini_api_key_here
-NEXT_PUBLIC_GEMINI_MODEL=gemini-1.5-flash # Optional: Defaults to gemini-1.5-flash
+NEXT_PUBLIC_GEMINI_API_KEY_1=your_first_gemini_api_key
+NEXT_PUBLIC_GEMINI_API_KEY_2=your_second_gemini_api_key (optional for rotation)
+NEXT_PUBLIC_GEMINI_MODEL=gemini-flash-latest # Recommended for stable quota
 ```
+
+If multiple keys are provided, the system will automatically rotate between them to balance the rate limits.
 
 ### Get Gemini API Key
 
