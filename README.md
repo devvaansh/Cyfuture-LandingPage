@@ -283,12 +283,17 @@ pnpm start
 
 ### Docker Deployment
 
+**Note**: The existing Dockerfile in the repository may need to be updated for Next.js. Here's the recommended approach:
+
 ```bash
 # Build the Docker image
-docker build -t cyfuture-ai --build-arg VITE_GEMINI_API_KEY=your_key --build-arg VITE_PINATA_JWT=your_jwt .
+docker build -t cyfuture-ai .
 
-# Run the container
-docker run -p 80:80 cyfuture-ai
+# Run the container with environment variables
+docker run -p 3000:3000 \
+  -e NEXT_PUBLIC_GEMINI_API_KEY_1=your_key \
+  -e NEXT_PUBLIC_PINATA_JWT=your_jwt \
+  cyfuture-ai
 ```
 
 ## 🔑 API Keys Setup
@@ -476,7 +481,6 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 
 For questions, issues, or feature requests:
 
-- 📧 Email: support@cyfuture.ai
 - 🐛 Issues: [GitHub Issues](https://github.com/hxrshxz/Cyfuture-LandingPage/issues)
 - 💬 Discussions: [GitHub Discussions](https://github.com/hxrshxz/Cyfuture-LandingPage/discussions)
 
@@ -499,5 +503,4 @@ For questions, issues, or feature requests:
 
 **Built with ❤️ by the CyFuture AI Team**
 
-**Website**: [cyfuture.ai](https://cyfuture.ai)  
 **GitHub**: [@hxrshxz](https://github.com/hxrshxz)
