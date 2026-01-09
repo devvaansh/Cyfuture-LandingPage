@@ -6,7 +6,7 @@ This implementation adds comprehensive OCR (Optical Character Recognition) funct
 
 ### 1. OCR Service (`lib/ocr-service.ts`)
 
-- **Gemini Vision API Integration**: Uses Google's Gemini-1.5-flash model for accurate OCR
+- **Gemini Vision API Integration**: Uses Google's Gemini-3-pro-preview model for accurate OCR
 - **Structured Data Extraction**: Extracts invoice number, vendor details, amounts, dates, line items, and more
 - **Input Validation**: Supports JPG, PNG, WebP formats up to 20MB
 - **Data Validation**: Validates extracted data for accuracy and completeness
@@ -81,6 +81,7 @@ Add to your `.env` file:
 
 ```
 NEXT_PUBLIC_GEMINI_API_KEY=your_gemini_api_key_here
+NEXT_PUBLIC_GEMINI_MODEL=gemini-3-pro-preview # Optional: Defaults to gemini-3-pro-preview
 ```
 
 ### Get Gemini API Key

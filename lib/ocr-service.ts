@@ -1,6 +1,7 @@
 "use client";
 
 import { GoogleGenerativeAI } from "@google/generative-ai";
+import { GEMINI_MODEL } from "./gemini";
 
 export interface ExtractedInvoiceData {
   invoice_number: string;
@@ -101,7 +102,7 @@ class InvoiceOCRService {
         };
       }
 
-      const model = this.genAI.getGenerativeModel({ model: "gemini-2.5-pro" });
+      const model = this.genAI.getGenerativeModel({ model: GEMINI_MODEL });
 
       const imagePart = await this.fileToGenerativePart(file);
 

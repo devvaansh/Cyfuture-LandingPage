@@ -3,6 +3,7 @@
 import React, { useState, useMemo, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { GoogleGenerativeAI } from "@google/generative-ai";
+import { GEMINI_MODEL } from "@/lib/gemini";
 import { Button } from "./ui/button";
 import { Bot, User, X, TrendingUp, ArrowDown, ArrowUp, Sparkles, Send, Mic, Globe, MessageSquare, Zap } from "lucide-react";
 import { useSpeechRecognition } from "@/hooks/useSpeechRecognition";
@@ -358,7 +359,7 @@ const AIAccountant = ({ embedded = false }: { embedded?: boolean }) => {
         try {
           console.log("Initializing Gemini AI...");
           const genAI = new GoogleGenerativeAI(API_KEY);
-          const model = genAI.getGenerativeModel({ model: "gemini-2.5-pro" });
+          const model = genAI.getGenerativeModel({ model: GEMINI_MODEL });
           const prompt = `You are an AI Data Analyst for CyFuture AI, a comprehensive financial analysis and data management platform. You help users with:
 
 - Financial data analysis and insights
