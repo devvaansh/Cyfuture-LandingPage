@@ -3,7 +3,7 @@
 import React, { useState, useMemo, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { GoogleGenerativeAI } from "@google/generative-ai";
-import { GEMINI_MODEL } from "@/lib/gemini";
+import { GEMINI_MODEL, getGeminiApiKey } from "@/lib/gemini";
 import { Button } from "./ui/button";
 import { Bot, User, X, TrendingUp, ArrowDown, ArrowUp, Sparkles, Send, Mic, Globe, MessageSquare, Zap } from "lucide-react";
 import { useSpeechRecognition } from "@/hooks/useSpeechRecognition";
@@ -352,7 +352,7 @@ const AIAccountant = ({ embedded = false }: { embedded?: boolean }) => {
     console.log("Chat history updated, thinking started", chatHistory);
 
     try {
-      const API_KEY = process.env.NEXT_PUBLIC_GEMINI_API_KEY;
+      const API_KEY = getGeminiApiKey();
       console.log("API_KEY available:", !!API_KEY);
       
       if (API_KEY) {
