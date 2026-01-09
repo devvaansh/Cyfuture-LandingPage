@@ -283,18 +283,52 @@ pnpm start
 
 ### Docker Deployment
 
-**Note**: The existing Dockerfile in the repository may need to be updated for Next.js. Here's the recommended approach:
+**Note**: The Dockerfile in this repository is currently configured for a Vite-based build but the project uses Next.js. For Docker deployment with Next.js, you have two options:
 
+**Option 1: Update the Dockerfile for Next.js**
+
+Create a new Dockerfile:
+```dockerfile
+FROM node:20-alpine AS base
+
+# Install dependencies only when needed
+FROM base AS deps
+WORKDIR /app
+COPY package.json pnpm-lock.yaml ./
+RUN npm install -g pnpm && pnpm install --frozen-lockfile
+
+# Rebuild the source code only when needed
+FROM base AS builder
+WORKDIR /app
+COPY --from=deps /app/node_modules ./node_modules
+COPY . .
+RUN npm install -g pnpm && pnpm build
+
+# Production image
+FROM base AS runner
+WORKDIR /app
+ENV NODE_ENV production
+COPY --from=builder /app/public ./public
+COPY --from=builder /app/.next/standalone ./
+COPY --from=builder /app/.next/static ./.next/static
+
+EXPOSE 3000
+ENV PORT 3000
+CMD ["node", "server.js"]
+```
+
+Then build and run:
 ```bash
-# Build the Docker image
 docker build -t cyfuture-ai .
-
-# Run the container with environment variables
 docker run -p 3000:3000 \
   -e NEXT_PUBLIC_GEMINI_API_KEY_1=your_key \
   -e NEXT_PUBLIC_PINATA_JWT=your_jwt \
   cyfuture-ai
 ```
+
+**Option 2: Use the existing Dockerfile**
+
+If you prefer to use the existing Dockerfile without modifications, ensure your environment variables use the VITE_ prefix during build.
 
 ## 🔑 API Keys Setup
 
@@ -414,7 +448,7 @@ pnpm build
 
 ### Docker
 
-See Dockerfile for containerized deployment configuration.
+See the "Docker Deployment" section above for detailed containerization instructions.
 
 ### Self-Hosted
 
@@ -422,7 +456,15 @@ See Dockerfile for containerized deployment configuration.
 # Build
 pnpm build
 
-# Use Next.js standalone output
+# Start the production server
+pnpm start
+```
+
+For standalone deployment:
+```bash
+# Enable standalone output in next.config.mjs
+# Then build and run:
+pnpm build
 node .next/standalone/server.js
 ```
 
