@@ -1,7 +1,7 @@
 "use client";
 
 import { GoogleGenerativeAI } from "@google/generative-ai";
-import { GEMINI_MODEL } from "./gemini";
+import { GEMINI_MODEL, getGeminiApiKey } from "./gemini";
 
 export interface ExtractedInvoiceData {
   invoice_number: string;
@@ -37,7 +37,7 @@ class InvoiceOCRService {
   private genAI: GoogleGenerativeAI | null = null;
 
   constructor() {
-    const apiKey = process.env.NEXT_PUBLIC_GEMINI_API_KEY;
+    const apiKey = getGeminiApiKey();
     if (apiKey) {
       this.genAI = new GoogleGenerativeAI(apiKey);
     } else {
